@@ -2,7 +2,7 @@
 
 bool Person::operator<(const Person& person) const
 {
-	return class_ < person.class_;
+	return name_ < person.name_;
 }
 
 std::ostream& operator<<(std::ostream& os, const Teacher& teacher) {

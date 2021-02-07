@@ -8,8 +8,8 @@ public:
 	~Attendance() {}
 	static void set_season(const std::string& season) { season_ = season; }
 	static void set_weeks(int weeks) { weeks_ = weeks; }
-	std::string get_season() const { return season_; }
-	int get_weeks() const { return weeks_; }
+	static std::string get_season() { return season_; }
+	static int get_weeks() { return weeks_; }
 	std::string get_date() const { return date_; }
 	bool get_lateness() const { return lateness_; }
 	virtual void SetAttendance() = 0;
@@ -28,6 +28,8 @@ public:
 public:
 	friend std::ostream& operator<<(std::ostream& os, const TeacherAttendance& attendance);
 	void SetAttendance() override;
+	std::string get_entrance_time() const { return entrance_time_; }
+	std::string get_exit_time() const { return exit_time_; }
 private:
 	std::string entrance_time_;
 	std::string exit_time_;

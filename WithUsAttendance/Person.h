@@ -3,6 +3,18 @@
 #include <iomanip>
 #include "Attendance.h"
 
+enum class CLASS {
+	FIRST_WOORI,
+	FIRST_MOODO,
+	FIRST_HAMGGE,
+	SECOND_WOORI,
+	SECOND_HAMGGE,
+	THIRD_WOORI,
+	THIRD_MOODO,
+	THIRD_HAMGGE,
+	ENGLISH
+};
+
 class Person : public std::exception {
 public:
 	Person(const int& id, const std::string name , const std::string _class) : id_(id), name_(name) , class_(_class) {}
@@ -28,6 +40,7 @@ public:
 		attendance_.SetAttendance();
 	};
 	void PrintTeacherAttendance() const { std::cout << name_ << " 교사의 출석 ->  " << attendance_; }
+	const TeacherAttendance& get_attendance() const { return attendance_; }
 private:
 	TeacherAttendance attendance_;
 };
