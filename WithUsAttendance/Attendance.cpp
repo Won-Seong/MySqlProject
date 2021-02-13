@@ -6,8 +6,8 @@ int Attendance::weeks_ = int();
 
 void TeacherAttendance::SetAttendance()
 {
-	std::cout << "날짜 , 시작 시간, 종료 시간, 지각 여부를 삽입해 주십시오." << std::endl;
-	std::cin >> date_ >> entrance_time_ >> exit_time_ >> lateness_;
+	std::cout << "날짜 , 시작 시간, 종료 시간을 삽입해 주십시오." << std::endl;
+	std::cin >> date_ >> entrance_time_ >> exit_time_;
 	date_ = "2021-" + date_;
 }
 

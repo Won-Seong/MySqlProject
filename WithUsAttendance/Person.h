@@ -13,7 +13,7 @@ enum class CLASS {
 	THIRD_MOODO,
 	THIRD_HAMGGE,
 	ENGLISH
-};
+};//존재하는 반
 
 class Person : public std::exception {
 public:
