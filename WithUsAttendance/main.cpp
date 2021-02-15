@@ -10,10 +10,8 @@
 #pragma comment(lib, "libmySQL.lib")
 
 void SetSeasonAndWeeks() {
-	std::string season;
+	std::string season{ "겨울" };
 	int weeks;
-	std::cout << "어떤 계절입니까? : ";
-	std::cin >> season;
 	std::cout << "몇 주차입니까? : ";
 	std::cin >> weeks;
 	std::cout << std::endl;
