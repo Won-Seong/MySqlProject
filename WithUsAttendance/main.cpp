@@ -68,6 +68,7 @@ bool CommitOrRollback() {
 
 int main() {
 	//MySQL 데이터베이스 연결
+
 	MYSQL* cons = NULL, conn;
 	mysql_init(&conn); //MySQL 연결 초기화
 	cons = mysql_real_connect(&conn, DB_HOST.c_str(), DB_USER.c_str(), DB_PASS.c_str(), DB_NAME.c_str(), 3306, NULL, 0);
