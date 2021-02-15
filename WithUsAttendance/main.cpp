@@ -17,20 +17,21 @@ void SetSeasonAndWeeks() {
 	std::cout << std::endl;
 	Attendance::set_season(season);
 	Attendance::set_weeks(weeks);
-}
+}//계절과 주차를 결정하는 함수
+//계절은 코드 상에서 한 번 결정하는 게 안전할 것 같아서 일단 이렇게 두었음. 배포를 원할 경우 파일 시스템 이용하여 학기 당 한 번 결정.
 
 bool StoreTeacherData(std::vector< Teacher >& teacher, MYSQL* connection) {
-	MYSQL_RES* sql_result;
+	std::unique_ptr<MYSQL_RES> sql_result;
 	MYSQL_ROW sql_row;
 	if (mysql_query(connection, "SELECT * FROM class_2021_winter;") != 0) {
 		return false;
 	}
-	sql_result = mysql_store_result(connection);
-	while ((sql_row = mysql_fetch_row(sql_result)) != NULL) {
+	sql_result = std::make_unique<MYSQL_RES>(*mysql_store_result(connection));
+	while ((sql_row = mysql_fetch_row(sql_result.get())) != NULL) {
 		teacher.push_back(Teacher{ std::atoi(sql_row[0]) , sql_row[1] , sql_row[2] });
 	}
 	return true;
-}
+}//교사의 데이터를 불러오는 함수
 
 bool CommitOrRollback() {
 	bool flag{ false };
@@ -68,15 +69,15 @@ bool CommitOrRollback() {
 
 int main() {
 	//MySQL 데이터베이스 연결
-
-	MYSQL* cons = NULL, conn;
+	std::unique_ptr<MYSQL> cons = NULL;
+	MYSQL conn;
 	mysql_init(&conn); //MySQL 연결 초기화
-	cons = mysql_real_connect(&conn, DB_HOST.c_str(), DB_USER.c_str(), DB_PASS.c_str(), DB_NAME.c_str(), 3306, NULL, 0);
+	cons = std::make_unique<MYSQL>(*mysql_real_connect(&conn, DB_HOST.c_str(), DB_USER.c_str(), DB_PASS.c_str(), DB_NAME.c_str(), 3306, NULL, 0));
 	if (cons == NULL) {
 		std::cout << "Mysql connection error : " << mysql_error(&conn) << std::endl;
 		return 1;
 	}
-	mysql_set_character_set(cons, "euckr");
+	mysql_set_character_set(cons.get(), "euckr");
 	//연결 후 문자 집합 설정까지 성공
 
 	//주차와 계절 결정
@@ -84,13 +85,13 @@ int main() {
 
 	//교사의 정보 불러오기 시도
 	std::vector< Teacher > teacher_array;
-	if (StoreTeacherData(teacher_array, cons) == false) {
+	if (StoreTeacherData(teacher_array, cons.get()) == false) {
 		std::cout << "Mysql connection error : " << mysql_error(&conn) << std::endl;
 		return 1;
 	}
 
 	//트랜잭션 시작
-	if (mysql_query(cons, "START TRANSACTION;") != 0) {
+	if (mysql_query(cons.get(), "START TRANSACTION;") != 0) {
 		std::cout << "Mysql connection error : " << mysql_error(&conn) << std::endl;
 		return 1;
 	}
@@ -103,13 +104,13 @@ int main() {
 		std::cin >> name;
 		if (name == "END") {
 			if (CommitOrRollback() == true) {
-				if (mysql_query(cons, "COMMIT;") != 0) {
+				if (mysql_query(cons.get(), "COMMIT;") != 0) {
 					std::cout << "Mysql connection error : " << mysql_error(&conn) << std::endl;
 					return 1;
 				}
 			}
 			else {
-				if (mysql_query(cons, "ROLLBACK;") != 0) {
+				if (mysql_query(cons.get(), "ROLLBACK;") != 0) {
 					std::cout << "Mysql connection error : " << mysql_error(&conn) << std::endl;
 					return 1;
 				}
@@ -119,7 +120,7 @@ int main() {
 			std::string str;
 			std::cin >> str;
 			if (str == "y") {
-				if (mysql_query(cons, "START TRANSACTION;") != 0) {
+				if (mysql_query(cons.get(), "START TRANSACTION;") != 0) {
 					std::cout << "Mysql connection error : " << mysql_error(&conn) << std::endl;
 					return 1;
 				}
@@ -161,9 +162,9 @@ int main() {
 				query += "\"" + target_teacher.get_attendance().get_date() + R"(" , )";
 				query += "\"" + target_teacher.get_attendance().get_entrance_time() + R"(" , )";
 				query += "\"" + target_teacher.get_attendance().get_exit_time() + "\" );";
-				if (mysql_query(cons, query.c_str()) != 0) {
+				if (mysql_query(cons.get(), query.c_str()) != 0) {
 					std::cout << "Mysql connection error : " << mysql_error(&conn) << std::endl;
-					mysql_query(cons, "ROLLBACK;");
+					mysql_query(cons.get(), "ROLLBACK;");
 					return 1;
 				}
 			}
@@ -177,7 +178,7 @@ int main() {
 	//트랜잭션 종료
 
 	system("pause");
-	mysql_close(cons);
+	mysql_close(cons.get());
 }
 
 
